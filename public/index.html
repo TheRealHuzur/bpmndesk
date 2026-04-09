@@ -1,0 +1,710 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BPMNDesk — Kostenloser BPMN 2.0 Editor im Browser</title>
+  <meta name="description" content="Prozesse modellieren ohne Installation und ohne Anmeldung. Kostenloser BPMN-Editor für die öffentliche Verwaltung. Ihre Diagramme bleiben lokal in Ihrem Browser.">
+  <meta property="og:title" content="BPMNDesk — Kostenloser BPMN 2.0 Editor im Browser">
+  <meta property="og:description" content="Prozesse modellieren ohne Installation und ohne Anmeldung. Kostenloser BPMN-Editor für die öffentliche Verwaltung. Ihre Diagramme bleiben lokal in Ihrem Browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bpmn.wissen-und-werkzeug.de/">
+  <meta property="og:locale" content="de_DE">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b162a'/%3E%3Cpath d='M20 16h15.5c7.8 0 12.5 3.8 12.5 9.8 0 4.2-2.3 7.1-6.1 8.4 4.6 1 7.6 4.3 7.6 9.4 0 6.7-5.2 11.4-14.8 11.4H20V16Zm8.7 7.1v8h6.2c3 0 4.7-1.4 4.7-4s-1.8-4-4.9-4h-6Zm0 14.7v9.1h7.1c3.7 0 5.7-1.6 5.7-4.5s-2-4.6-5.8-4.6h-7Z' fill='%230ea5e9'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="vendor/bpmn-js/diagram-js.css">
+  <link rel="stylesheet" href="vendor/bpmn-js/bpmn-js.css">
+  <link rel="stylesheet" href="vendor/bpmn-js/bpmn-embedded.css">
+  <style>
+    @font-face {
+      font-family: "Inter";
+      src: url("/assets/fonts/inter-regular.woff2") format("woff2");
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Inter";
+      src: url("/assets/fonts/inter-medium.woff2") format("woff2");
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Inter";
+      src: url("/assets/fonts/inter-semibold.woff2") format("woff2");
+      font-weight: 600;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --teal: #0e97ad;
+      --sky: #0ea5e9;
+      --light: #b0cfe5;
+      --navy: #2a314d;
+      --deep: #0B162A;
+      --bg: #020617;
+      --bg-2: #1a2235;
+      --bg-3: #1e2c42;
+      --text: #e8eef5;
+      --text-muted: #7a91ab;
+      --border: rgba(176, 207, 229, 0.12);
+      --glow: rgba(14, 151, 173, 0.18);
+      --accent: var(--teal);
+      --accent-2: var(--sky);
+      --input-bg: #1e2c42;
+      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+      --grid-color: rgba(14, 151, 173, 0.035);
+      --header-height: 56px;
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      --bg: #eef4fa;
+      --bg-2: #ffffff;
+      --bg-3: #e2ecf5;
+      --text: #0f1c2e;
+      --text-muted: #4e6680;
+      --border: rgba(14, 97, 150, 0.13);
+      --glow: rgba(14, 151, 173, 0.13);
+      --accent: #0a7d94;
+      --accent-2: #0284c7;
+      --input-bg: #f5f9fd;
+      --shadow: 0 4px 24px rgba(14, 60, 120, 0.10);
+      --shadow-sm: 0 2px 10px rgba(14, 60, 120, 0.08);
+      --grid-color: rgba(14, 97, 173, 0.045);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    body {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a, button, input, .theme-switch {
+      transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0 18px 18px;
+      gap: 18px;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 6px;
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      flex-shrink: 0;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+
+    .brand-home {
+      display: inline-flex;
+      align-items: baseline;
+      opacity: 1;
+    }
+
+    .brand-home:hover { opacity: 0.7; }
+    .brand-dark { color: var(--text); font-weight: 800; }
+    .brand-accent { color: var(--sky); font-weight: 800; }
+
+    .brand-separator {
+      margin: 0 8px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .brand-current {
+      display: inline-flex;
+      align-items: baseline;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 13.5px;
+      font-weight: 500;
+      background: transparent;
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      background: var(--accent-2);
+      color: #fff;
+      border: none;
+    }
+
+    .btn-primary:hover { background: var(--sky); }
+
+    .btn-secondary {
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    .btn-ghost {
+      color: var(--text-muted);
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .btn-ghost:hover { color: var(--teal); }
+
+    .theme-switch {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      width: 60px;
+      height: 34px;
+      padding: 4px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--bg-2);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .theme-switch input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .theme-track {
+      position: absolute;
+      inset: 4px;
+      border-radius: 999px;
+      background: var(--bg-3);
+    }
+
+    .theme-thumb {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      background: var(--bg);
+      color: var(--accent-2);
+      transform: translateX(0);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.25s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    [data-theme="light"] .theme-thumb { transform: translateX(26px); }
+
+    .theme-thumb svg {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      transition: opacity 0.2s ease;
+    }
+
+    .icon-sun { opacity: 0; }
+    .icon-moon { opacity: 1; }
+    [data-theme="light"] .icon-sun { opacity: 1; }
+    [data-theme="light"] .icon-moon { opacity: 0; }
+
+    .app-main {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    #canvas {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      min-height: calc(100vh - 160px);
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    #canvas .djs-container,
+    #canvas .djs-palette,
+    #canvas .djs-popup,
+    #canvas .djs-context-pad {
+      font-family: "Inter", system-ui, sans-serif;
+    }
+
+    #canvas .djs-container { background: var(--bg-2); }
+
+    #canvas .djs-palette {
+      margin-top: 12px;
+      margin-left: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      background: var(--bg-2);
+    }
+
+    #canvas .djs-palette .entry:hover,
+    #canvas .djs-palette .highlighted-entry {
+      background: color-mix(in srgb, var(--accent-2) 14%, var(--bg-2));
+    }
+
+    #canvas .djs-palette .separator { border-color: var(--border); }
+
+    #canvas .djs-context-pad,
+    #canvas .djs-popup {
+      background: var(--bg-2);
+      border-color: var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+
+    #canvas .djs-popup .entry:hover,
+    #canvas .djs-context-pad .entry:hover {
+      background: color-mix(in srgb, var(--accent) 10%, var(--bg-2));
+    }
+
+    #toast-container {
+      position: fixed;
+      top: calc(var(--header-height) + 20px);
+      right: 28px;
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast {
+      min-width: 280px;
+      max-width: min(360px, calc(100vw - 32px));
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      border: 1px solid transparent;
+      box-shadow: var(--shadow-sm);
+      background: rgba(14, 165, 233, 0.08);
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(-8px);
+      animation: toast-in 0.2s ease forwards;
+    }
+
+    .toast[data-type="info"] { border-color: rgba(14, 165, 233, 0.24); }
+
+    .toast[data-type="error"] {
+      background: rgba(220, 38, 38, 0.08);
+      border-color: rgba(220, 38, 38, 0.24);
+      color: #dc2626;
+    }
+
+    .toast.is-leaving { animation: toast-out 0.2s ease forwards; }
+
+    .site-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 4px 4px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .footer-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-group a:hover { color: var(--teal); }
+    .footer-label { color: var(--text); font-weight: 500; }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toast-out {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-8px); }
+    }
+
+    @media (max-width: 920px) {
+      .site-header {
+        height: auto;
+        min-height: var(--header-height);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .toolbar {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .site-footer { flex-direction: column; }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell {
+        padding: 0 12px 14px;
+        gap: 14px;
+      }
+
+      .brand { font-size: 17px; }
+      .toolbar-group { gap: 6px; }
+      .btn { padding: 8px 10px; }
+      .btn-label { display: none; }
+      #canvas { min-height: calc(100vh - 188px); }
+
+      #toast-container {
+        right: 12px;
+        left: 12px;
+        top: calc(var(--header-height) + 52px);
+      }
+
+      .toast {
+        max-width: none;
+        min-width: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="brand" aria-label="DESKsuite BPMNDesk">
+        <a class="brand-home" href="https://desk-suite.wissen-und-werkzeug.de/">
+          <span class="brand-dark">DESK</span><span class="brand-accent">suite</span>
+        </a>
+        <span class="brand-separator">›</span>
+        <span class="brand-current"><span class="brand-dark">BPMN</span><span class="brand-accent">Desk</span></span>
+      </div>
+
+      <div class="toolbar">
+        <div class="toolbar-group" aria-label="Werkzeugleiste">
+          <button class="btn btn-secondary" id="new-diagram" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+            <span class="btn-label">Neu</span>
+          </button>
+          <button class="btn btn-secondary" id="open-diagram" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5"></path><path d="M7 10l5-5 5 5"></path><path d="M5 19h14"></path></svg>
+            <span class="btn-label">Öffnen</span>
+          </button>
+          <button class="btn btn-primary" id="download-bpmn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v11"></path><path d="M7 12l5 5 5-5"></path><path d="M5 19h14"></path></svg>
+            <span class="btn-label">Herunterladen</span>
+          </button>
+          <button class="btn btn-secondary" id="download-svg" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"></rect><circle cx="9" cy="10" r="1.5"></circle><path d="M20 15l-4.5-4.5L8 18"></path></svg>
+            <span class="btn-label">Als SVG</span>
+          </button>
+        </div>
+
+        <label class="theme-switch" aria-label="Farbschema umschalten">
+          <input id="theme-toggle" type="checkbox" role="switch" aria-label="Farbschema umschalten">
+          <span class="theme-track" aria-hidden="true"></span>
+          <span class="theme-thumb" aria-hidden="true">
+            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path></svg>
+            <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
+          </span>
+        </label>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div id="canvas" aria-label="BPMN-Arbeitsbereich"></div>
+    </main>
+
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="site-footer">
+      <div class="footer-group">
+        <span class="footer-label">Rechtliches</span>
+        <a href="/impressum.html">Impressum</a>
+        <a href="/datenschutz.html">Datenschutz</a>
+      </div>
+      <div class="footer-group">
+        <span class="footer-label">Über</span>
+        <a href="https://wissen-und-werkzeug.de">Entwickelt von Patrick Roßkothen</a>
+      </div>
+      <div class="footer-group">
+        <span class="footer-label">BPMN lernen?</span>
+        <!-- Patrick ergänzt hier später die finale Webinar-URL. -->
+        <a href="https://wissen-und-werkzeug.de">→ Grundkurs BPMN</a>
+      </div>
+    </footer>
+  </div>
+
+  <input id="file-input" type="file" accept=".bpmn,.xml" hidden>
+
+  <script src="vendor/bpmn-js/bpmn-modeler.production.min.js"></script>
+  <script>
+    const THEME_KEY = "bpmndesk-theme";
+    const START_DIAGRAM_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  id="Definitions_1"
+  targetNamespace="https://bpmn.wissen-und-werkzeug.de/schema/bpmndesk">
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Start" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="180" y="180" width="36" height="36" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>`;
+
+    const html = document.documentElement;
+    const themeToggle = document.getElementById("theme-toggle");
+    const toastContainer = document.getElementById("toast-container");
+    const fileInput = document.getElementById("file-input");
+
+    function resolveInitialTheme() {
+      const storedTheme = localStorage.getItem(THEME_KEY);
+      if (storedTheme === "light" || storedTheme === "dark") {
+        return storedTheme;
+      }
+      return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+    }
+
+    function applyTheme(theme) {
+      html.setAttribute("data-theme", theme);
+      themeToggle.checked = theme === "light";
+    }
+
+    function showToast(message, type = "info") {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.dataset.type = type;
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+
+      window.setTimeout(() => {
+        toast.classList.add("is-leaving");
+        window.setTimeout(() => toast.remove(), 220);
+      }, 5000);
+    }
+
+    function downloadBlob(content, type, filename) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    applyTheme(resolveInitialTheme());
+
+    // bpmn-js wird als globales UMD-Bundle geladen und direkt an den Canvas gebunden.
+    const modeler = new BpmnJS({
+      container: "#canvas",
+      keyboard: { bindTo: document }
+    });
+
+    async function importDiagram(xml) {
+      await modeler.importXML(xml);
+      modeler.get("canvas").zoom("fit-viewport");
+    }
+
+    // Startzustand des Editors: minimales, gepinntes BPMN-XML mit einem Start-Event.
+    async function loadStartDiagram() {
+      try {
+        await importDiagram(START_DIAGRAM_XML);
+      } catch (error) {
+        console.error(error);
+        showToast("Startdiagramm konnte nicht geladen werden.", "error");
+      }
+    }
+
+    themeToggle.addEventListener("change", () => {
+      const nextTheme = themeToggle.checked ? "light" : "dark";
+      applyTheme(nextTheme);
+      localStorage.setItem(THEME_KEY, nextTheme);
+    });
+
+    document.getElementById("new-diagram").addEventListener("click", async () => {
+      if (!window.confirm("Aktuelles Diagramm verwerfen und neu starten?")) {
+        return;
+      }
+
+      await loadStartDiagram();
+      showToast("Neues Diagramm wurde geladen.");
+    });
+
+    document.getElementById("open-diagram").addEventListener("click", () => {
+      fileInput.value = "";
+      fileInput.click();
+    });
+
+    // Datei-Import bleibt rein lokal im Browser und verwendet FileReader.
+    fileInput.addEventListener("change", () => {
+      const [file] = fileInput.files || [];
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = async () => {
+        try {
+          await importDiagram(String(reader.result || ""));
+          showToast("Diagramm wurde geladen.");
+        } catch (error) {
+          console.error(error);
+          showToast("Datei konnte nicht geladen werden. Bitte prüfen Sie, ob es sich um eine gültige BPMN-2.0-Datei handelt.", "error");
+        }
+      };
+
+      reader.onerror = () => {
+        showToast("Datei konnte nicht gelesen werden.", "error");
+      };
+
+      reader.readAsText(file);
+    });
+
+    document.getElementById("download-bpmn").addEventListener("click", async () => {
+      try {
+        const result = await modeler.saveXML({ format: true });
+        downloadBlob(result.xml, "application/xml;charset=utf-8", "diagramm.bpmn");
+      } catch (error) {
+        console.error(error);
+        showToast("Diagramm konnte nicht heruntergeladen werden.", "error");
+      }
+    });
+
+    document.getElementById("download-svg").addEventListener("click", async () => {
+      try {
+        const result = await modeler.saveSVG();
+        downloadBlob(result.svg, "image/svg+xml;charset=utf-8", "diagramm.svg");
+      } catch (error) {
+        console.error(error);
+        showToast("SVG konnte nicht heruntergeladen werden.", "error");
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      const canvas = modeler.get("canvas");
+      if (canvas) {
+        canvas.resized();
+      }
+    });
+
+    loadStartDiagram();
+  </script>
+</body>
+</html>
