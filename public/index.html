@@ -42,28 +42,10 @@
 
     :root {
       --teal: #0e97ad;
-      --sky: #0ea5e9;
+      --sky: #0284c7;
       --light: #b0cfe5;
       --navy: #2a314d;
       --deep: #0B162A;
-      --bg: #020617;
-      --bg-2: #1a2235;
-      --bg-3: #1e2c42;
-      --text: #e8eef5;
-      --text-muted: #7a91ab;
-      --border: rgba(176, 207, 229, 0.12);
-      --glow: rgba(14, 151, 173, 0.18);
-      --accent: var(--teal);
-      --accent-2: var(--sky);
-      --input-bg: #1e2c42;
-      --shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-      --grid-color: rgba(14, 151, 173, 0.035);
-      --header-height: 56px;
-      color-scheme: dark;
-    }
-
-    [data-theme="light"] {
       --bg: #eef4fa;
       --bg-2: #ffffff;
       --bg-3: #e2ecf5;
@@ -72,12 +54,13 @@
       --border: rgba(14, 97, 150, 0.13);
       --glow: rgba(14, 151, 173, 0.13);
       --accent: #0a7d94;
-      --accent-2: #0284c7;
+      --accent-2: var(--sky);
       --input-bg: #f5f9fd;
       --shadow: 0 4px 24px rgba(14, 60, 120, 0.10);
       --shadow-sm: 0 2px 10px rgba(14, 60, 120, 0.08);
       --grid-color: rgba(14, 97, 173, 0.045);
-      color-scheme: light;
+      --header-height: 56px;
+      color-scheme: dark;
     }
 
     * { box-sizing: border-box; }
@@ -109,7 +92,7 @@
       z-index: 0;
     }
 
-    a, button, input, .theme-switch {
+    a, button, input {
       transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
     }
 
@@ -142,9 +125,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 0 6px;
-      background: color-mix(in srgb, var(--bg) 72%, transparent);
-      backdrop-filter: blur(14px);
+      padding: 0 16px;
+      background: transparent;
     }
 
     .brand {
@@ -195,25 +177,34 @@
       min-width: 0;
     }
 
+    .brand-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      flex: 1;
+      min-width: 0;
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      min-height: 40px;
-      padding: 8px 14px;
-      border-radius: 8px;
+      gap: 6px;
+      min-height: 32px;
+      padding: 6px 12px;
+      border-radius: 6px;
       border: 1px solid transparent;
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 500;
       background: transparent;
       color: var(--text);
-      box-shadow: none;
+      transition: all 0.15s ease;
     }
 
     .btn svg {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       stroke: currentColor;
       fill: none;
       stroke-width: 2;
@@ -224,18 +215,45 @@
       background: var(--accent-2);
       color: #fff;
       border: none;
+      box-shadow: 0 1px 2px rgba(2, 132, 199, 0.15), 0 2px 4px rgba(2, 132, 199, 0.12);
     }
 
-    .btn-primary:hover { background: var(--sky); }
+    .btn-primary:hover {
+      background: #0369a1;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.18), 0 4px 12px rgba(2, 132, 199, 0.20);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(2, 132, 199, 0.20);
+    }
 
     .btn-secondary {
-      border-color: var(--border);
+      background: #ffffff;
+      border-color: transparent;
       color: var(--text);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .btn-secondary svg {
+      color: var(--text-muted);
     }
 
     .btn-secondary:hover {
-      border-color: var(--teal);
-      color: var(--teal);
+      background: #ffffff;
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 4px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .btn-secondary:hover svg {
+      color: var(--accent);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
     }
 
     .btn-ghost {
@@ -246,67 +264,23 @@
 
     .btn-ghost:hover { color: var(--teal); }
 
-    .theme-switch {
-      position: relative;
+    .header-logo {
       display: inline-flex;
       align-items: center;
-      width: 60px;
-      height: 34px;
-      padding: 4px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--bg-2);
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
       flex-shrink: 0;
-    }
-
-    .theme-switch input {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .theme-track {
-      position: absolute;
-      inset: 4px;
-      border-radius: 999px;
-      background: var(--bg-3);
-    }
-
-    .theme-thumb {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      background: var(--bg);
-      color: var(--accent-2);
-      transform: translateX(0);
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.25s ease, background 0.3s ease, color 0.3s ease;
-    }
-
-    [data-theme="light"] .theme-thumb { transform: translateX(26px); }
-
-    .theme-thumb svg {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
+      opacity: 1;
       transition: opacity 0.2s ease;
     }
 
-    .icon-sun { opacity: 0; }
-    .icon-moon { opacity: 1; }
-    [data-theme="light"] .icon-sun { opacity: 1; }
-    [data-theme="light"] .icon-moon { opacity: 0; }
+    .header-logo:hover {
+      opacity: 0.7;
+    }
+
+    .header-logo img {
+      display: block;
+      height: 32px;
+      width: auto;
+    }
 
     .app-main {
       position: relative;
@@ -321,11 +295,12 @@
       z-index: 2;
       flex: 1;
       min-height: calc(100vh - 160px);
-      background: var(--bg-2);
+      margin: 16px;
+      background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: var(--shadow);
+      box-shadow: 0 4px 24px rgba(14, 60, 120, 0.10);
     }
 
     #canvas .djs-container,
@@ -335,7 +310,7 @@
       font-family: "Inter", system-ui, sans-serif;
     }
 
-    #canvas .djs-container { background: var(--bg-2); }
+    #canvas .djs-container { background: #ffffff; }
 
     #canvas .djs-palette {
       margin-top: 12px;
@@ -343,26 +318,26 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       box-shadow: var(--shadow-sm);
-      background: var(--bg-2);
+      background: #ffffff;
     }
 
     #canvas .djs-palette .entry:hover,
     #canvas .djs-palette .highlighted-entry {
-      background: color-mix(in srgb, var(--accent-2) 14%, var(--bg-2));
+      background: rgba(14, 165, 233, 0.08);
     }
 
     #canvas .djs-palette .separator { border-color: var(--border); }
 
     #canvas .djs-context-pad,
     #canvas .djs-popup {
-      background: var(--bg-2);
+      background: #ffffff;
       border-color: var(--border);
       box-shadow: var(--shadow-sm);
     }
 
     #canvas .djs-popup .entry:hover,
     #canvas .djs-context-pad .entry:hover {
-      background: color-mix(in srgb, var(--accent) 10%, var(--bg-2));
+      background: rgba(14, 165, 233, 0.08);
     }
 
     #toast-container {
@@ -411,12 +386,14 @@
       padding: 4px 4px 0;
       color: var(--text-muted);
       font-size: 12px;
+      border-top: 1px solid var(--border);
     }
 
     .footer-group {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
+      align-items: center;
     }
 
     .footer-group a:hover { color: var(--teal); }
@@ -441,7 +418,7 @@
         flex-wrap: wrap;
       }
 
-      .toolbar {
+      .brand-tools {
         width: 100%;
         justify-content: space-between;
       }
@@ -457,9 +434,10 @@
 
       .brand { font-size: 17px; }
       .toolbar-group { gap: 6px; }
-      .btn { padding: 8px 10px; }
+      .btn { padding: 6px 10px; }
       .btn-label { display: none; }
       #canvas { min-height: calc(100vh - 188px); }
+      .header-logo img { height: 26px; }
 
       #toast-container {
         right: 12px;
@@ -485,7 +463,8 @@
         <span class="brand-current"><span class="brand-dark">BPMN</span><span class="brand-accent">Desk</span></span>
       </div>
 
-      <div class="toolbar">
+      <div class="brand-tools">
+        <div class="toolbar">
         <div class="toolbar-group" aria-label="Werkzeugleiste">
           <button class="btn btn-secondary" id="new-diagram" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
@@ -504,15 +483,10 @@
             <span class="btn-label">Als SVG</span>
           </button>
         </div>
-
-        <label class="theme-switch" aria-label="Farbschema umschalten">
-          <input id="theme-toggle" type="checkbox" role="switch" aria-label="Farbschema umschalten">
-          <span class="theme-track" aria-hidden="true"></span>
-          <span class="theme-thumb" aria-hidden="true">
-            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path></svg>
-            <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path></svg>
-          </span>
-        </label>
+        </div>
+        <a class="header-logo" href="https://wissen-und-werkzeug.de" target="_blank" rel="noopener">
+          <img src="assets/images/logo-wuw.png" alt="Wissen &amp; Werkzeug — Beratung für Prozessmanagement und KI">
+        </a>
       </div>
     </header>
 
@@ -525,17 +499,12 @@
     <footer class="site-footer">
       <div class="footer-group">
         <span class="footer-label">Rechtliches</span>
-        <a href="/impressum.html">Impressum</a>
+        <a href="https://wissen-und-werkzeug.de/impressum/" target="_blank" rel="noopener">Impressum</a>
         <a href="/datenschutz.html">Datenschutz</a>
       </div>
       <div class="footer-group">
-        <span class="footer-label">Über</span>
-        <a href="https://wissen-und-werkzeug.de">Entwickelt von Patrick Roßkothen</a>
-      </div>
-      <div class="footer-group">
         <span class="footer-label">BPMN lernen?</span>
-        <!-- Patrick ergänzt hier später die finale Webinar-URL. -->
-        <a href="https://wissen-und-werkzeug.de">→ Grundkurs BPMN</a>
+        <a href="https://wissen-und-werkzeug.de/seminare/" target="_blank" rel="noopener">→ Grundkurs BPMN</a>
       </div>
     </footer>
   </div>
@@ -544,7 +513,6 @@
 
   <script src="vendor/bpmn-js/bpmn-modeler.production.min.js"></script>
   <script>
-    const THEME_KEY = "bpmndesk-theme";
     const START_DIAGRAM_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -565,23 +533,8 @@
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>`;
 
-    const html = document.documentElement;
-    const themeToggle = document.getElementById("theme-toggle");
     const toastContainer = document.getElementById("toast-container");
     const fileInput = document.getElementById("file-input");
-
-    function resolveInitialTheme() {
-      const storedTheme = localStorage.getItem(THEME_KEY);
-      if (storedTheme === "light" || storedTheme === "dark") {
-        return storedTheme;
-      }
-      return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-    }
-
-    function applyTheme(theme) {
-      html.setAttribute("data-theme", theme);
-      themeToggle.checked = theme === "light";
-    }
 
     function showToast(message, type = "info") {
       const toast = document.createElement("div");
@@ -608,8 +561,6 @@
       window.setTimeout(() => URL.revokeObjectURL(url), 0);
     }
 
-    applyTheme(resolveInitialTheme());
-
     // bpmn-js wird als globales UMD-Bundle geladen und direkt an den Canvas gebunden.
     const modeler = new BpmnJS({
       container: "#canvas",
@@ -630,12 +581,6 @@
         showToast("Startdiagramm konnte nicht geladen werden.", "error");
       }
     }
-
-    themeToggle.addEventListener("change", () => {
-      const nextTheme = themeToggle.checked ? "light" : "dark";
-      applyTheme(nextTheme);
-      localStorage.setItem(THEME_KEY, nextTheme);
-    });
 
     document.getElementById("new-diagram").addEventListener("click", async () => {
       if (!window.confirm("Aktuelles Diagramm verwerfen und neu starten?")) {
