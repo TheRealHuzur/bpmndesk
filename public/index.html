@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BPMNDesk — Kostenloser BPMN 2.0 Editor im Browser</title>
-  <meta name="description" content="Prozesse modellieren ohne Installation und ohne Anmeldung. Kostenloser BPMN-Editor für die öffentliche Verwaltung. Ihre Diagramme bleiben lokal in Ihrem Browser.">
-  <meta property="og:title" content="BPMNDesk — Kostenloser BPMN 2.0 Editor im Browser">
-  <meta property="og:description" content="Prozesse modellieren ohne Installation und ohne Anmeldung. Kostenloser BPMN-Editor für die öffentliche Verwaltung. Ihre Diagramme bleiben lokal in Ihrem Browser.">
+  <title>BPMNDesk – BPMN-Diagramme online erstellen</title>
+  <meta name="description" content="Kostenloser BPMN 2.0 Editor. Diagramme direkt im Browser erstellen und herunterladen. Keine Anmeldung, keine Datenübertragung.">
+  <meta property="og:title" content="BPMNDesk – BPMN-Diagramme online erstellen">
+  <meta property="og:description" content="Kostenloser BPMN 2.0 Editor. Diagramme direkt im Browser erstellen und herunterladen. Keine Anmeldung, keine Datenübertragung.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://bpmn.wissen-und-werkzeug.de/">
   <meta property="og:locale" content="de_DE">
   <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="BPMNDesk – BPMN-Diagramme online erstellen">
+  <meta name="twitter:description" content="Kostenloser BPMN 2.0 Editor. Diagramme direkt im Browser erstellen und herunterladen. Keine Anmeldung, keine Datenübertragung.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b162a'/%3E%3Cpath d='M20 16h15.5c7.8 0 12.5 3.8 12.5 9.8 0 4.2-2.3 7.1-6.1 8.4 4.6 1 7.6 4.3 7.6 9.4 0 6.7-5.2 11.4-14.8 11.4H20V16Zm8.7 7.1v8h6.2c3 0 4.7-1.4 4.7-4s-1.8-4-4.9-4h-6Zm0 14.7v9.1h7.1c3.7 0 5.7-1.6 5.7-4.5s-2-4.6-5.8-4.6h-7Z' fill='%230ea5e9'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="vendor/bpmn-js/diagram-js.css">
   <link rel="stylesheet" href="vendor/bpmn-js/bpmn-js.css">
@@ -398,6 +400,21 @@
 
     .footer-group a:hover { color: var(--teal); }
     .footer-label { color: var(--text); font-weight: 500; }
+    .footer-author { color: var(--text-muted); justify-content: center; }
+    .footer-author a { color: var(--text-muted); }
+    .footer-author a:hover { color: var(--sky); }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
 
     @keyframes toast-in {
       from { opacity: 0; transform: translateY(-8px); }
@@ -453,6 +470,7 @@
   </style>
 </head>
 <body>
+  <h1 class="visually-hidden">BPMNDesk – Kostenloser BPMN 2.0 Editor zum Erstellen und Herunterladen von Prozessdiagrammen direkt im Browser</h1>
   <div class="app-shell">
     <header class="site-header">
       <div class="brand" aria-label="DESKsuite BPMNDesk">
@@ -501,6 +519,9 @@
         <span class="footer-label">Rechtliches</span>
         <a href="https://wissen-und-werkzeug.de/impressum/" target="_blank" rel="noopener">Impressum</a>
         <a href="/datenschutz.html">Datenschutz</a>
+      </div>
+      <div class="footer-group footer-author">
+        <span>Erstellt durch <a href="https://wissen-und-werkzeug.de/ueber_mich/" target="_blank" rel="noopener">Patrick Roßkothen</a></span>
       </div>
       <div class="footer-group">
         <span class="footer-label">BPMN lernen?</span>
