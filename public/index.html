@@ -755,6 +755,31 @@
       return /^bpmn:(StartEvent|Task|SubProcess|ExclusiveGateway|ParallelGateway|EventBasedGateway|IntermediateCatchEvent|IntermediateThrowEvent|EndEvent)$/.test(type || "");
     }
 
+    function isLaneHostElement(element) {
+      const type = element && element.businessObject && element.businessObject.$type;
+      return type === "bpmn:Lane" || type === "bpmn:Participant";
+    }
+
+    function getParticipantLaneTarget(element) {
+      if (!element || !element.businessObject) {
+        return null;
+      }
+
+      if (element.businessObject.$type === "bpmn:Lane") {
+        return element;
+      }
+
+      if (element.businessObject.$type !== "bpmn:Participant") {
+        return null;
+      }
+
+      const childLane = Array.isArray(element.children)
+        ? element.children.find((child) => child && child.businessObject && child.businessObject.$type === "bpmn:Lane")
+        : null;
+
+      return childLane || element;
+    }
+
     function getWhitelistKey(descriptor) {
       if (descriptor.participantKind) {
         return "bpmn:Participant";
@@ -978,6 +1003,45 @@
               click: (event) => this._connect.start(event, element),
               dragstart: (event) => this._connect.start(event, element)
             }
+          };
+        }
+
+        if (isLaneHostElement(element)) {
+          const getLaneTarget = () => getParticipantLaneTarget(element);
+          const addLane = (location) => () => {
+            const target = getLaneTarget();
+
+            if (target && typeof this._modeling.addLane === "function") {
+              this._modeling.addLane(target, location);
+            }
+          };
+          const splitLane = () => {
+            const target = getLaneTarget();
+
+            if (target && typeof this._modeling.splitLane === "function") {
+              this._modeling.splitLane(target, 2);
+            }
+          };
+
+          entries["lane-insert-above"] = {
+            group: "lane-insert-above",
+            className: "bpmn-icon-lane-insert-above",
+            title: "Lane oberhalb einfügen",
+            action: { click: addLane("top") }
+          };
+
+          entries["lane-divide-two"] = {
+            group: "lane-divide",
+            className: "bpmn-icon-lane-divide-two",
+            title: "In zwei Lanes teilen",
+            action: { click: splitLane }
+          };
+
+          entries["lane-insert-below"] = {
+            group: "lane-insert-below",
+            className: "bpmn-icon-lane-insert-below",
+            title: "Lane unterhalb einfügen",
+            action: { click: addLane("bottom") }
           };
         }
 
